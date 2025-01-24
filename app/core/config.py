@@ -1,5 +1,5 @@
+from pydantic import BaseModel, PostgresDsn
 from pydantic_settings import BaseSettings
-from pydantic import BaseModel
 
 
 class RunConfig(BaseModel):
@@ -11,9 +11,18 @@ class APIPrefix(BaseModel):
     prefix: str = "/api"
 
 
+class DatabaseConfig(BaseModel):
+    url: PostgresDsn
+    echo: bool = False
+    echo_pool: bool = False
+    max_overflow: int = 30
+    pool_size: int = 10
+
+
 class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: APIPrefix = APIPrefix()
+    db: DatabaseConfig
 
 
 settings = Settings()
