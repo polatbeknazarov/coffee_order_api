@@ -11,8 +11,13 @@ class RunConfig(BaseModel):
     port: int = 8000
 
 
+class APIV1Prefix(BaseModel):
+    prefix: str = "/v1"
+
+
 class APIPrefix(BaseModel):
     prefix: str = "/api"
+    v1: APIV1Prefix = APIV1Prefix()
 
 
 class AuthJWT(BaseModel):
