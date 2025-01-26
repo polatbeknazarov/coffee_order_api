@@ -23,3 +23,13 @@ async def login(user: UserRead = Depends(validate_auth_user)):
     access_token = create_access_token(user=user)
     refresh_token = create_refresh_token(user=user)
     return TokenSchema(access_token=access_token, refresh_token=refresh_token)
+
+
+@auth_router.post(
+    "/refresh",
+    response_model=TokenSchema,
+    response_model_exclude_none=True,
+)
+async def refresh_jwt(user: UserRead = Depends(get_user_from_refresh_token)):
+    access_token = create_access_token(user=user)
+    return TokenSchema(access_token=access_token)

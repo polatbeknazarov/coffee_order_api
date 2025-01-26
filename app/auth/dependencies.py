@@ -62,15 +62,15 @@ async def get_current_auth_user(
         session=session,
     )
 
-    user_id = payload.get("sub")
-    user = await UserDAO.get_by_id(model_id=int(user_id), session=session)
 
-    if user:
-        return user
-
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid token.",
+async def get_user_from_refresh_token(
+    payload: dict = Depends(get_token_payload),
+    session: AsyncSession = Depends(db_helper.session_getter),
+) -> UserRead:
+    return await get_user_from_token_sub(
+        payload=payload,
+        token_type="refresh",
+        session=session,
     )
 
 
