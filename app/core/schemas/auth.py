@@ -7,7 +7,7 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class RegisterRequest(LoginRequest):
+class RegisterRequest(BaseModel):
     username: str
     email: EmailStr
     password: str
@@ -22,14 +22,9 @@ class RegisterRequest(LoginRequest):
     @field_validator("password")
     def password_validation(cls, password_value: str):
         password_value = password_value.strip()
+        pattern = r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_]).{8,}$"
 
-        if len(password_value) < 8:
-            raise ValueError("Password must be at least 8 characters long.")
-        if not re.search(r"[A-Z]", password_value):
-            raise ValueError("The password must contain at least one capital letter.")
-        if not re.search(r"[0-9]", password_value):
-            raise ValueError("The password must contain at least one number.")
-        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password_value):
-            raise ValueError("The password must contain at least one special character.")
+        if not re.match(pattern, password_value):
+            raise ValueError("Password must be at least 8 characters long, contain at least one letter and one number.")
 
         return password_value
