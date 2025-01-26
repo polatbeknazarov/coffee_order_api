@@ -63,3 +63,12 @@ def create_access_token(user: UserRead) -> str:
         token_data=payload,
         expire_minutes=settings.auth_jwt.access_token_expire_minutes,
     )
+
+
+def create_refresh_token(user: UserRead) -> str:
+    payload = {"sub": str(user.id)}
+    return create_jwt(
+        token_type="refresh",
+        token_data=payload,
+        expire_minutes=settings.auth_jwt.refresh_token_expire_minutes,
+    )
