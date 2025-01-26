@@ -61,3 +61,12 @@ async def validate_auth_user(
         )
 
     return user
+
+
+def validate_token_type(payload: dict, token_type: str) -> bool:
+    if payload.get("type") == token_type:
+        return True
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid token type.",
+    )
