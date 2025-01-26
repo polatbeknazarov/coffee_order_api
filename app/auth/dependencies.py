@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from jwt.exceptions import InvalidTokenError
 
@@ -11,6 +11,7 @@ from core.schemas import UserRead
 from auth.utils import decode_jwt
 from crud.users import UserDAO
 
+http_bearer = HTTPBearer(auto_error=False)
 oauth2_schema = OAuth2PasswordBearer(
     tokenUrl=f"{settings.api.prefix}{settings.api.v1.prefix}{settings.api.v1.auth}/login"
 )
