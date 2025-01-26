@@ -4,13 +4,14 @@ import jwt
 from datetime import datetime, timezone, timedelta
 
 from core.config import settings
+from core.schemas import UserRead
 
 
 def encode_jwt(
     payload: dict,
+    expire_minutes: int,
     private_key: str = settings.auth_jwt.private_key_path.read_text(),
     algorithm: str = settings.auth_jwt.algorithm,
-    expire_minutes: int = settings.auth_jwt.access_token_expire_minutes,
 ) -> str:
     to_encode = payload.copy()
 
@@ -42,4 +43,23 @@ def validate_password(password: str, hashed_password: bytes) -> bool:
     return bcrypt.checkpw(
         password=password.encode(),
         hashed_password=hashed_password,
+    )
+
+
+def create_jwt(
+    token_type: str,
+    token_data: dict,
+    expire_minutes: int,
+) -> str:
+    payload = {"type": token_type}
+    payload.update(token_data)
+    return encode_jwt(payload=payload, expire_minutes=expire_minutes)
+
+
+def create_access_token(user: UserRead) -> str:
+    payload = {"sub": str(user.id), "username": user.username, "email": user.email}
+    return create_jwt(
+        token_type="access",
+        token_data=payload,
+        expire_minutes=settings.auth_jwt.access_token_expire_minutes,
     )
