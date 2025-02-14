@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "library-management-api"
+name = "coffee-order-api"
 version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]

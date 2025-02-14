@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic import BaseModel, PostgresDsn
+from pydantic import BaseModel, PostgresDsn, EmailStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent.parent
@@ -38,6 +38,13 @@ class DatabaseConfig(BaseModel):
     pool_size: int = 10
 
 
+class SMTPConfig(BaseModel):
+    host: str
+    port: int
+    user: EmailStr
+    password: str
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
@@ -50,6 +57,7 @@ class Settings(BaseSettings):
     api: APIPrefix = APIPrefix()
     auth_jwt: AuthJWT = AuthJWT()
     db: DatabaseConfig
+    smtp: SMTPConfig
 
 
 settings = Settings()
