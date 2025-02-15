@@ -19,7 +19,7 @@ async def validate_create_user(
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"User with username '{register_request.username}' already exists.",
+            detail=f"User already exists.",
         )
 
     hashed_password = hash_password(password=register_request.password)

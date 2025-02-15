@@ -20,7 +20,7 @@ oauth2_schema = OAuth2PasswordBearer(
 )
 
 
-async def get_token_payload(token: str = Depends(oauth2_schema)) -> UserRead:
+async def get_token_payload(token: str = Depends(oauth2_schema)) -> dict:
     try:
         payload = decode_jwt(token=token)
     except InvalidTokenError as e:
@@ -82,3 +82,25 @@ async def get_current_user(user: UserRead = Depends(get_current_auth_user)):
         status_code=status.HTTP_403_FORBIDDEN,
         detail="User inactive.",
     )
+
+
+async def get_unverified_user_by_email(email: str, session: AsyncSession = Depends(db_helper.session_getter)):
+    user = await UserDAO.get_user_by_email(email=email, session=session)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found.",
+        )
+    if user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User is already verified.",
+        )
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User inactive.",
+        )
+
+    return user

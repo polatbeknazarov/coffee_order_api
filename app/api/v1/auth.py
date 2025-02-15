@@ -11,6 +11,7 @@ from auth.dependencies import (
     http_bearer,
     get_user_from_token_sub,
     get_token_payload,
+    get_unverified_user_by_email,
 )
 from crud.users import UserDAO
 from services.email import send_email
@@ -41,7 +42,7 @@ async def login(user: UserRead = Depends(validate_auth_user)):
 
 
 @auth_router.post("/verify", response_model=UserRead)
-async def verify_user(
+async def verify_email(
     token: str,
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
@@ -57,6 +58,19 @@ async def verify_user(
         status_code=status.HTTP_400_BAD_REQUEST,
         detail="User is already verified.",
     )
+
+
+@auth_router.post("/resent-verification")
+async def resend_verification_email(
+    user: UserRead = Depends(get_unverified_user_by_email),
+):
+    verification_token = create_verification_token(user=user)
+    await send_email(
+        to_email=user.email,
+        subject="Email Verification",
+        body=f"Click the link to verify your email: {settings.api.v1.auth}/verify?token={verification_token}",
+    )
+    return {"message": "Verification email sent."}
 
 
 @auth_router.post(
