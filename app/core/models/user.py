@@ -19,3 +19,4 @@ class User(Base):
     )
 
     is_active: Mapped[bool] = mapped_column(default=True)
+    is_verified: Mapped[bool] = mapped_column(default=False)
