@@ -1,6 +1,7 @@
 import logging
 import pydantic
 
+from sqlalchemy import Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
@@ -30,6 +31,16 @@ class BaseDAO[T: Base, V: pydantic.BaseModel]:
             raise
 
         return instance
+
+    @classmethod
+    async def get_all(cls, session: AsyncSession) -> Sequence[T]:
+        try:
+            stmt = select(cls.model)
+            result = await session.scalars(stmt)
+            instances = result.all()
+            return instances
+        except SQLAlchemyError as e:
+            logging.error("Error fetching all %s: %s", cls.model.__name__, e)
 
     @classmethod
     async def get_by_id(cls, model_id: int, session: AsyncSession) -> T | None:
