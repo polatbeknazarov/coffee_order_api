@@ -1,11 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from core.models import UserRole
 
 
 class UserBase(BaseModel):
     username: str
-    email: str
+    email: EmailStr
 
 
 class UserCreate(UserBase):
@@ -17,3 +17,7 @@ class UserRead(UserBase):
     role: UserRole
     is_active: bool
     is_verified: bool
+
+
+class UserUpdate(UserBase):
+    pass
