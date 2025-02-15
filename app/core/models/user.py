@@ -14,7 +14,7 @@ class User(Base):
 
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole),
-        default=UserRole.READER,
+        default=UserRole.USER,
         nullable=False,
     )
 
