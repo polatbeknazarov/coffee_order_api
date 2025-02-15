@@ -28,6 +28,7 @@ class AuthJWT(BaseModel):
     algorithm: str = "RS256"
     access_token_expire_minutes: int = 15
     refresh_token_expire_minutes: int = 60 * 24 * 30
+    verification_token_expire_minutes: int = 20
 
 
 class DatabaseConfig(BaseModel):
