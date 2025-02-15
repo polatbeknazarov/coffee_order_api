@@ -75,7 +75,7 @@ async def get_user_from_refresh_token(
 
 
 async def get_current_user(user: UserRead = Depends(get_current_auth_user)):
-    if user.is_active:
+    if user.is_active and user.is_verified:
         return user
 
     raise HTTPException(

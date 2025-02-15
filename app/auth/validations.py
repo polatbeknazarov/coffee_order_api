@@ -54,7 +54,7 @@ async def validate_auth_user(
             detail="Invalid username or password.",
         )
 
-    if not user.is_active:
+    if not user.is_active or not user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User inactive.",

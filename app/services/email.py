@@ -25,3 +25,4 @@ async def send_email(to_email: str, subject: str, body: str):
         logging.info("Email successfully sent to %s", to_email)
     except Exception as e:
         logging.error("Error sending email: %s", e)
+        raise e

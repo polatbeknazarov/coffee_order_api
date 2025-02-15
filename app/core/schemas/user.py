@@ -16,3 +16,4 @@ class UserRead(UserBase):
     id: int
     role: UserRole
     is_active: bool
+    is_verified: bool
