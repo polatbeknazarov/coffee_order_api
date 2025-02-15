@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.exc import SQLAlchemyError
 
 from .base import BaseDAO
 from core.models import User
@@ -19,3 +20,14 @@ class UserDAO(BaseDAO[User, UserCreate]):
         stmt = select(User).filter((User.email == email) | (User.username == username))
         result = await session.scalars(stmt)
         return result.one_or_none()
+
+    @classmethod
+    async def verify_user(cls, user_id: int, session: AsyncSession) -> User:
+        try:
+            user = await cls.get_by_id(model_id=user_id, session=session)
+            user.is_verified = True
+            await session.commit()
+            return user
+        except SQLAlchemyError as e:
+            await session.rollback()
+            raise
