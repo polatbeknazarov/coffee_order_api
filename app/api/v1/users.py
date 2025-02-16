@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
-from core.models import db_helper
+from core.models import db_helper, UserRole
 from core.schemas import UserRead, UserUpdate
 from crud.users import UserDAO
 from auth.dependencies import get_current_user, http_bearer
@@ -42,3 +43,18 @@ async def delete_current_user(
 ):
     await UserDAO.delete(model_id=user.id, session=session)
     return True
+
+
+@users_router.get("", response_model=List[UserRead])
+async def get_all_users(
+    user: UserRead = Depends(get_current_user),
+    session: AsyncSession = Depends(db_helper.session_getter),
+):
+    if user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to access this resource.",
+        )
+
+    users = await UserDAO.get_all(session=session)
+    return users
