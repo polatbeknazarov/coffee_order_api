@@ -1,7 +1,10 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
-from core.schemas import UserRead
+from core.models import db_helper
+from core.schemas import UserRead, UserUpdate
+from crud.users import UserDAO
 from auth.dependencies import get_current_user, http_bearer
 
 users_router = APIRouter(
@@ -16,3 +19,15 @@ async def get_current_auth_user(
     user: UserRead = Depends(get_current_user),
 ):
     return user
+
+
+@users_router.patch("/me", response_model=UserRead)
+async def update_current_user(
+    user_update: UserUpdate,
+    user: UserRead = Depends(get_current_user),
+    session: AsyncSession = Depends(db_helper.session_getter),
+):
+    updated_user = await UserDAO.update(
+        model_id=user.id, validated_values=user_update, session=session
+    )
+    return updated_user
