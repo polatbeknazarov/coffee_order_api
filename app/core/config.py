@@ -15,6 +15,8 @@ class APIV1Prefix(BaseModel):
     prefix: str = "/v1"
     auth: str = "/auth"
     users: str = "/users"
+    categories: str = "/categories"
+    products: str = "/products"
 
 
 class APIPrefix(BaseModel):
