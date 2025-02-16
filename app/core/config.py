@@ -46,6 +46,12 @@ class SMTPConfig(BaseModel):
     password: str
 
 
+class AdminConfig(BaseModel):
+    email: EmailStr
+    username: str
+    password: str
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env.template", ".env"),
@@ -59,6 +65,7 @@ class Settings(BaseSettings):
     auth_jwt: AuthJWT = AuthJWT()
     db: DatabaseConfig
     smtp: SMTPConfig
+    admin: AdminConfig
 
 
 settings = Settings()
