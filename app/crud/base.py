@@ -77,6 +77,7 @@ class BaseDAO[T: Base, V: pydantic.BaseModel]:
 
         try:
             await session.flush()
+            await session.commit()
             logging.info(
                 "%s with id %s successfully updated",
                 cls.model.__name__,
