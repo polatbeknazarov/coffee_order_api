@@ -28,6 +28,17 @@ async def update_current_user(
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
     updated_user = await UserDAO.update(
-        model_id=user.id, validated_values=user_update, session=session
+        model_id=user.id,
+        validated_values=user_update,
+        session=session,
     )
     return updated_user
+
+
+@users_router.delete("/me")
+async def delete_current_user(
+    user: UserRead = Depends(get_current_user),
+    session: AsyncSession = Depends(db_helper.session_getter),
+):
+    await UserDAO.delete(model_id=user.id, session=session)
+    return True
