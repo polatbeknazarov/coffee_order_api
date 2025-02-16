@@ -6,8 +6,10 @@ __all__ = (
     "UserRead",
     "UserCreate",
     "UserUpdate",
+    "UserAdminCreate",
 )
 
 from .auth import LoginRequest, RegisterRequest
 from .token import TokenSchema
-from .user import UserBase, UserRead, UserCreate, UserUpdate
+from .user import UserBase, UserRead, UserCreate, UserUpdate, UserAdminCreate
+

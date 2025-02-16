@@ -21,3 +21,9 @@ class UserRead(UserBase):
 
 class UserUpdate(UserBase):
     pass
+
+
+class UserAdminCreate(UserCreate):
+    role: UserRole
+    is_active: bool = True
+    is_verified: bool = True
