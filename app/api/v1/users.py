@@ -81,3 +81,22 @@ async def get_user_by_id(
         )
 
     return user
+
+
+@users_router.patch("/{user_id}", response_model=UserRead)
+async def update_user_by_id(
+    user_id: int,
+    user_update: UserUpdate,
+    user: UserRead = Depends(get_current_user),
+    session: AsyncSession = Depends(db_helper.session_getter),
+):
+    if user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to access this resource.",
+        )
+
+    updated_user = await UserDAO.update(
+        model_id=user_id, validated_values=user_update, session=session
+    )
+    return updated_user
