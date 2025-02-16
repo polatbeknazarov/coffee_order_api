@@ -4,10 +4,10 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from .base import BaseDAO
 from core.models import User
-from core.schemas import UserCreate
+from core.schemas import UserBase
 
 
-class UserDAO(BaseDAO[User, UserCreate]):
+class UserDAO(BaseDAO[User, UserBase]):
     model = User
 
     @classmethod
@@ -18,6 +18,16 @@ class UserDAO(BaseDAO[User, UserCreate]):
         session: AsyncSession,
     ) -> User | None:
         stmt = select(User).filter((User.email == email) | (User.username == username))
+        result = await session.scalars(stmt)
+        return result.one_or_none()
+
+    @classmethod
+    async def get_user_by_email(
+        cls,
+        email: str,
+        session: AsyncSession,
+    ) -> User | None:
+        stmt = select(User).filter(User.email == email)
         result = await session.scalars(stmt)
         return result.one_or_none()
 
