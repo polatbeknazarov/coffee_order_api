@@ -40,3 +40,12 @@ async def create_static_info(
         )
 
     return static_info
+
+
+@static_info_router.get("", response_model=List[StaticInfoRead])
+async def get_all_static_info(
+    admin: UserRead = Depends(require_role(UserRole.ADMIN)),
+    session: AsyncSession = Depends(db_helper.session_getter),
+):
+    static_info = await StaticInfoDAO.get_all(session=session)
+    return static_info
