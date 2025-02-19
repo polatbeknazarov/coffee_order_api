@@ -26,6 +26,7 @@ __all__ = (
     "OrderCreate",
     "OrderRead",
     "OrderUpdate",
+    "StaticInfoBase",
     "StaticInfoCreate",
     "StaticInfoRead",
     "StaticInfoUpdate",
@@ -38,4 +39,4 @@ from .category import CategoryBase, CategoryCreate, CategoryRead, CategoryUpdate
 from .product import ProductBase, ProductCreate, ProductRead, ProductUpdate, ProductFilter
 from .cart import CartBase, CartCreate, CartRead, CartUpdate
 from .order import OrderBase, OrderCreate, OrderRead, OrderUpdate
-from .static_info import StaticInfoCreate, StaticInfoRead, StaticInfoUpdate
+from .static_info import StaticInfoBase, StaticInfoCreate, StaticInfoRead, StaticInfoUpdate
