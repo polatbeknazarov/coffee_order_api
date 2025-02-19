@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 from typing import Literal
 
-from pydantic import BaseModel, PostgresDsn, EmailStr
+from pydantic import BaseModel, PostgresDsn, EmailStr, AmqpDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent.parent
@@ -51,7 +51,11 @@ class AuthJWT(BaseModel):
     algorithm: str = "RS256"
     access_token_expire_minutes: int = 15
     refresh_token_expire_minutes: int = 60 * 24 * 30
-    verification_token_expire_minutes: int = 20
+    verification_token_expire_minutes: int = 60 * 24 * 2
+
+
+class TaskiqConfig(BaseModel):
+    url: AmqpDsn = "amqp://guest:guest@localhost:5672//"
 
 
 class DatabaseConfig(BaseModel):
@@ -88,6 +92,7 @@ class Settings(BaseSettings):
     api: APIPrefix = APIPrefix()
     auth_jwt: AuthJWT = AuthJWT()
     db: DatabaseConfig
+    taskiq: TaskiqConfig = TaskiqConfig()
     smtp: SMTPConfig
     admin: AdminConfig
 
