@@ -49,3 +49,18 @@ async def get_all_static_info(
 ):
     static_info = await StaticInfoDAO.get_all(session=session)
     return static_info
+
+
+@static_info_router.patch("/{static_info_id}", response_model=StaticInfoRead)
+async def update_static_info_by_id(
+    static_info_id: int,
+    request: StaticInfoUpdate,
+    admin: UserRead = Depends(require_role(UserRole.ADMIN)),
+    session: AsyncSession = Depends(db_helper.session_getter),
+):
+    result = await StaticInfoDAO.update(
+        model_id=static_info_id,
+        validated_values=request,
+        session=session,
+    )
+    return result
