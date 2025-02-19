@@ -17,7 +17,7 @@ class ProductCreate(ProductBase):
 
 class ProductRead(ProductBase):
     id: int
-    category: CategoryRead
+    category_id: int
     is_available: bool
 
 
