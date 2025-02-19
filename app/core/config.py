@@ -1,14 +1,35 @@
+import logging
+
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, PostgresDsn, EmailStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent.parent
+LOG_DEFAULT_FORMAT = (
+    "[%(asctime)s.%(msecs)03d] %(module)10s:%(lineno)-3d %(levelname)-7s - %(message)s"
+)
 
 
 class RunConfig(BaseModel):
     host: str = "0.0.0.0"
     port: int = 8000
+
+
+class LoggingConfig(BaseModel):
+    log_level: Literal[
+        "debug",
+        "info",
+        "warning",
+        "error",
+        "critical",
+    ] = "info"
+    log_format: str = LOG_DEFAULT_FORMAT
+
+    @property
+    def log_level_value(self) -> int:
+        return logging.getLevelNamesMapping()[self.log_level.upper()]
 
 
 class APIV1Prefix(BaseModel):
@@ -63,6 +84,7 @@ class Settings(BaseSettings):
     )
 
     run: RunConfig = RunConfig()
+    logging: LoggingConfig = LoggingConfig()
     api: APIPrefix = APIPrefix()
     auth_jwt: AuthJWT = AuthJWT()
     db: DatabaseConfig
