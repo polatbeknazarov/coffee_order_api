@@ -63,4 +63,23 @@ async def update_static_info_by_id(
         validated_values=request,
         session=session,
     )
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f'Static info with id "{static_info_id}" not found.',
+        )
+
+    return result
+
+
+@static_info_router.delete("/{static_info_id}")
+async def delete_static_info_by_id(
+    static_info_id: int,
+    admin: UserRead = Depends(require_role(UserRole.ADMIN)),
+    session: AsyncSession = Depends(db_helper.session_getter),
+):
+    result = await StaticInfoDAO.delete(
+        model_id=static_info_id,
+        session=session,
+    )
     return result
