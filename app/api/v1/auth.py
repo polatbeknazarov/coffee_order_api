@@ -3,8 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
 from core.models import db_helper
-from core.schemas import UserRead, TokenSchema
-from auth.utils import create_access_token, create_refresh_token, create_verification_token
+from core.schemas import UserRead, TokenSchema, VerificationUserData, VerifyRequest
+from auth.utils import (
+    create_access_token,
+    create_refresh_token,
+    create_verification_token,
+)
 from auth.validations import validate_create_user, validate_auth_user
 from auth.dependencies import (
     get_user_from_refresh_token,
@@ -14,7 +18,7 @@ from auth.dependencies import (
     get_unverified_user_by_email,
 )
 from crud.users import UserDAO
-from services.email import send_email
+from tasks import send_welcome_email, send_email_verification_token
 
 auth_router = APIRouter(
     prefix=settings.api.v1.auth,
@@ -26,12 +30,14 @@ auth_router = APIRouter(
 @auth_router.post("/register")
 async def register(user: UserRead = Depends(validate_create_user)):
     verification_token = create_verification_token(user=user)
-    await send_email(
-        to_email=user.email,
-        subject="Email Verification",
-        body=f"Click the link to verify your email: {settings.api.v1.auth}/verify?token={verification_token}",
+    await send_email_verification_token.kiq(
+        user_email=user.email,
+        verification_token=verification_token,
     )
-    return {"message": "Registration completed successfully. Confirm your email address."}
+
+    return {
+        "message": "Registration completed successfully. Confirm your email address."
+    }
 
 
 @auth_router.post("/login", response_model=TokenSchema)
@@ -43,14 +49,21 @@ async def login(user: UserRead = Depends(validate_auth_user)):
 
 @auth_router.post("/verify", response_model=UserRead)
 async def verify_email(
-    token: str,
+    request: VerifyRequest,
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
-    payload = await get_token_payload(token=token)
-    user = await get_user_from_token_sub(payload=payload, token_type="access", session=session)
+    payload = await get_token_payload(token=request.token)
+    user = await get_user_from_token_sub(
+        payload=payload, token_type="access", session=session
+    )
 
     if not user.is_verified:
-        await UserDAO.verify_user(user_id=user.id, session=session)
+        await UserDAO.update(
+            model_id=user.id,
+            validated_values=VerificationUserData(),
+            session=session,
+        )
+        await send_welcome_email.kiq(user_email=user.email, username=user.username)
 
         return user
 
@@ -65,10 +78,9 @@ async def resend_verification_email(
     user: UserRead = Depends(get_unverified_user_by_email),
 ):
     verification_token = create_verification_token(user=user)
-    await send_email(
-        to_email=user.email,
-        subject="Email Verification",
-        body=f"Click the link to verify your email: {settings.api.v1.auth}/verify?token={verification_token}",
+    await send_email_verification_token.kiq(
+        user_email=user.email,
+        verification_token=verification_token,
     )
     return {"message": "Verification email sent."}
 
