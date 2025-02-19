@@ -28,3 +28,11 @@ class RegisterRequest(BaseModel):
             raise ValueError("Password must be at least 8 characters long, contain at least one letter and one number.")
 
         return password_value
+
+
+class VerifyRequest(BaseModel):
+    token: str
+
+
+class VerificationUserData(BaseModel):
+    is_verified: bool = True
