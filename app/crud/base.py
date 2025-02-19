@@ -1,12 +1,16 @@
 import logging
 import pydantic
 
+from typing import Dict, Any
+
 from sqlalchemy import Sequence
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from core.models import Base
+
+log = logging.getLogger(__name__)
 
 
 class BaseDAO[T: Base, V: pydantic.BaseModel]:
@@ -20,14 +24,14 @@ class BaseDAO[T: Base, V: pydantic.BaseModel]:
         try:
             await session.flush()
             await session.commit()
-            logging.info(
+            log.info(
                 "%s successfully created with values: %s",
                 cls.model.__name__,
                 validated_values,
             )
         except SQLAlchemyError as e:
             await session.rollback()
-            logging.error("Error creating %s: %s", cls.model.__name__, e)
+            log.error("Error creating %s: %s", cls.model.__name__, e)
             raise
 
         return instance
@@ -40,7 +44,7 @@ class BaseDAO[T: Base, V: pydantic.BaseModel]:
             instances = result.all()
             return instances
         except SQLAlchemyError as e:
-            logging.error("Error fetching all %s: %s", cls.model.__name__, e)
+            log.error("Error fetching all %s: %s", cls.model.__name__, e)
 
     @classmethod
     async def get_by_id(cls, model_id: int, session: AsyncSession) -> T | None:
@@ -49,16 +53,28 @@ class BaseDAO[T: Base, V: pydantic.BaseModel]:
             result = await session.scalars(stmt)
             instance = result.one_or_none()
             if instance is None:
-                logging.warning("%s with id %s not found", cls.model.__name__, model_id)
+                log.warning("%s with id %s not found", cls.model.__name__, model_id)
             return instance
         except SQLAlchemyError as e:
-            logging.error(
+            log.error(
                 "Error fetching %s by id %s: %s",
                 cls.model.__name__,
                 model_id,
                 e,
             )
             raise
+
+    @classmethod
+    async def find_all(
+        cls,
+        where: Dict[str, Any],
+        session: AsyncSession,
+    ) -> Sequence[T]:
+        filters = [getattr(cls.model, key) == value for key, value in where.items()]
+        stmt = select(cls.model).where(*filters)
+        result = await session.scalars(stmt)
+
+        return result.all()
 
     @classmethod
     async def update(
@@ -69,7 +85,7 @@ class BaseDAO[T: Base, V: pydantic.BaseModel]:
     ) -> T | None:
         instance = await cls.get_by_id(model_id=model_id, session=session)
         if not instance:
-            logging.warning("%s with id %s not found", cls.model.__name__, model_id)
+            log.warning("%s with id %s not found", cls.model.__name__, model_id)
             return None
 
         for field, value in validated_values.model_dump().items():
@@ -78,14 +94,14 @@ class BaseDAO[T: Base, V: pydantic.BaseModel]:
         try:
             await session.flush()
             await session.commit()
-            logging.info(
+            log.info(
                 "%s with id %s successfully updated",
                 cls.model.__name__,
                 model_id,
             )
         except SQLAlchemyError as e:
             await session.rollback()
-            logging.error(
+            log.error(
                 "Error updating %s with id %s: %s",
                 cls.model.__name__,
                 model_id,
@@ -99,13 +115,13 @@ class BaseDAO[T: Base, V: pydantic.BaseModel]:
     async def delete(cls, model_id: int, session: AsyncSession) -> dict:
         instance = await cls.get_by_id(model_id=model_id, session=session)
         if not instance:
-            logging.warning("%s with id %s not found", cls.model.__name__, model_id)
+            log.warning("%s with id %s not found", cls.model.__name__, model_id)
             return {"message": f"{cls.model.__name__} not found", "deleted": False}
 
         try:
             await session.delete(instance)
             await session.commit()
-            logging.info(
+            log.info(
                 "%s with id %s successfully deleted",
                 cls.model.__name__,
                 model_id,
@@ -116,7 +132,7 @@ class BaseDAO[T: Base, V: pydantic.BaseModel]:
             }
         except SQLAlchemyError as e:
             await session.rollback()
-            logging.error(
+            log.error(
                 "Error deleting %s with id %s: %s",
                 cls.model.__name__,
                 model_id,
