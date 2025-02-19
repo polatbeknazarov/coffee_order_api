@@ -1,4 +1,5 @@
 import logging
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
@@ -6,6 +7,8 @@ from core.models import User, UserRole
 from core.schemas import UserAdminCreate
 from crud.users import UserDAO
 from auth.utils import hash_password
+
+log = logging.getLogger(__name__)
 
 
 async def create_admin(
@@ -20,7 +23,7 @@ async def create_admin(
         session=session,
     )
     if admin_exists:
-        logging.info("Admin user already exists.")
+        log.info("Admin user already exists.")
         return
 
     hashed_password = hash_password(password=password)

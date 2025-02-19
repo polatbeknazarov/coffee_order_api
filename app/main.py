@@ -6,13 +6,10 @@ from create_fastapi_app import create_app
 
 from api import router as api_router
 
-logger = logging.getLogger(__name__)
 logging.basicConfig(
-    level=logging.INFO,
-    datefmt="%Y-%m-%d %H:%M:%S",
-    format="[%(asctime)s.%(msecs)03d] %(module)20s:%(lineno)-3d %(levelname)-7s - %(message)s",
+    level=settings.logging.log_level_value,
+    format=settings.logging.log_format,
 )
-
 
 main_app = create_app()
 main_app.include_router(api_router)
