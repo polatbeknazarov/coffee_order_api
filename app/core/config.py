@@ -38,6 +38,8 @@ class APIV1Prefix(BaseModel):
     users: str = "/users"
     categories: str = "/categories"
     products: str = "/products"
+    carts: str = "/carts"
+    orders: str = "/orders"
 
 
 class APIPrefix(BaseModel):
