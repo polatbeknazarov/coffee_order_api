@@ -9,6 +9,7 @@ __all__ = (
     "Order",
     "OrderItem",
     "OrderStatus",
+    "StaticInfo",
 )
 
 from .db_helper import db_helper
@@ -19,3 +20,4 @@ from .category import Category
 from .product import Product
 from .cart import Cart
 from .order import Order, OrderItem
+from .static_info import StaticInfo
