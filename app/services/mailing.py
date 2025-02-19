@@ -5,6 +5,8 @@ from email.message import EmailMessage
 
 from core.config import settings
 
+log = logging.getLogger(__name__)
+
 
 async def send_email(to_email: str, subject: str, body: str):
     msg = EmailMessage()
@@ -22,7 +24,15 @@ async def send_email(to_email: str, subject: str, body: str):
             password=settings.smtp.password,
             start_tls=True,
         )
-        logging.info("Email successfully sent to %s", to_email)
+        log.info("Email successfully sent to %s", to_email)
     except Exception as e:
-        logging.error("Error sending email: %s", e)
+        log.error("Error sending email: %s", e)
         raise e
+
+
+async def send_welcome_email(user_email: str, username: str) -> None:
+    await send_email(
+        to_email=user_email,
+        subject="Welcome to our site!",
+        body=f"Dear {username},\n\nWelcome to our site!",
+    )
