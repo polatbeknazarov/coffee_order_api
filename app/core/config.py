@@ -40,6 +40,7 @@ class APIV1Prefix(BaseModel):
     products: str = "/products"
     carts: str = "/carts"
     orders: str = "/orders"
+    static_info: str = "/static-info"
 
 
 class APIPrefix(BaseModel):
