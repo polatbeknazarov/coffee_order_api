@@ -3,10 +3,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
-from core.models import db_helper
+from core.models import db_helper, UserRole
 from core.schemas import CategoryCreate, CategoryRead, UserRead
 from crud.categories import CategoryDAO
-from auth.dependencies import get_current_user, http_bearer
+from auth.dependencies import http_bearer, require_role
 
 categories_router = APIRouter(
     prefix=settings.api.v1.categories,
@@ -18,16 +18,12 @@ categories_router = APIRouter(
 @categories_router.post("", response_model=CategoryRead)
 async def create_category(
     category_create: CategoryCreate,
-    user: UserRead = Depends(get_current_user),
+    admin: UserRead = Depends(require_role(UserRole.ADMIN)),
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
-    if user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to access this resource.",
-        )
-
-    category = await CategoryDAO.create(validated_values=category_create, session=session)
+    category = await CategoryDAO.create(
+        validated_values=category_create, session=session
+    )
     return category
 
 
@@ -58,15 +54,9 @@ async def get_category_by_id(
 async def update_category(
     category_id: int,
     category_update: CategoryCreate,
-    user: UserRead = Depends(get_current_user),
+    admin: UserRead = Depends(require_role(UserRole.ADMIN)),
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
-    if user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to access this resource.",
-        )
-
     category = await CategoryDAO.update(
         model_id=category_id,
         validated_values=category_update,
@@ -78,14 +68,8 @@ async def update_category(
 @categories_router.delete("/{category_id}")
 async def delete_category(
     category_id: int,
-    user: UserRead = Depends(get_current_user),
+    admin: UserRead = Depends(require_role(UserRole.ADMIN)),
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
-    if user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to access this resource.",
-        )
-
     result = await CategoryDAO.delete(model_id=category_id, session=session)
     return result

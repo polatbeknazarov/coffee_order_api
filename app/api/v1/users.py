@@ -6,7 +6,7 @@ from core.config import settings
 from core.models import db_helper, UserRole
 from core.schemas import UserRead, UserUpdate
 from crud.users import UserDAO
-from auth.dependencies import get_current_user, http_bearer
+from auth.dependencies import get_current_user, http_bearer, require_role
 
 users_router = APIRouter(
     prefix=settings.api.v1.users,
@@ -47,15 +47,9 @@ async def delete_current_user(
 
 @users_router.get("", response_model=List[UserRead])
 async def get_all_users(
-    user: UserRead = Depends(get_current_user),
+    admin: UserRead = Depends(require_role(UserRole.ADMIN)),
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
-    if user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to access this resource.",
-        )
-
     users = await UserDAO.get_all(session=session)
     return users
 
@@ -63,15 +57,9 @@ async def get_all_users(
 @users_router.get("/{user_id}", response_model=UserRead)
 async def get_user_by_id(
     user_id: int,
-    user: UserRead = Depends(get_current_user),
+    admin: UserRead = Depends(require_role(UserRole.ADMIN)),
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
-    if user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to access this resource.",
-        )
-
     user = await UserDAO.get_by_id(model_id=user_id, session=session)
 
     if user is None:
@@ -87,15 +75,9 @@ async def get_user_by_id(
 async def update_user_by_id(
     user_id: int,
     user_update: UserUpdate,
-    user: UserRead = Depends(get_current_user),
+    admin: UserRead = Depends(require_role(UserRole.ADMIN)),
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
-    if user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to access this resource.",
-        )
-
     updated_user = await UserDAO.update(
         model_id=user_id,
         validated_values=user_update,
@@ -107,14 +89,8 @@ async def update_user_by_id(
 @users_router.delete("/{user_id}")
 async def delete_user_by_id(
     user_id: int,
-    user: UserRead = Depends(get_current_user),
+    admin: UserRead = Depends(require_role(UserRole.ADMIN)),
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
-    if user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to access this resource.",
-        )
-
     result = await UserDAO.delete(model_id=user_id, session=session)
     return result
