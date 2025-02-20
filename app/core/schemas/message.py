@@ -15,3 +15,7 @@ class MessageCreate(MessageBase):
 class MessageRead(MessageCreate):
     id: int
     created_at: datetime
+
+
+class MessageUpdate(BaseModel):
+    message_text: str

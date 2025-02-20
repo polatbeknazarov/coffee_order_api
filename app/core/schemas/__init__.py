@@ -36,6 +36,7 @@ __all__ = (
     "MessageBase",
     "MessageRead",
     "MessageCreate",
+    "MessageUpdate",
 )
 
 from .auth import LoginRequest, RegisterRequest, VerifyRequest, VerificationUserData
@@ -47,4 +48,4 @@ from .cart import CartBase, CartCreate, CartRead, CartUpdate
 from .order import OrderBase, OrderCreate, OrderRead, OrderUpdate
 from .static_info import StaticInfoBase, StaticInfoCreate, StaticInfoRead, StaticInfoUpdate
 from .chat import ChatBase, ChatRead, ChatCreate
-from .message import MessageBase, MessageRead, MessageCreate
+from .message import MessageBase, MessageRead, MessageCreate, MessageUpdate
