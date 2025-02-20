@@ -42,13 +42,13 @@ services:
 
   app:
     build: .
-    container_name: coffee_app
+    container_name: app
     restart: always
     depends_on:
       pg:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://user:password@pg:5432/app
+      APP_CONFIG__DB__URL: postgresql+asyncpg://user:password@pg:5432/app
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
     env_file:
       - app/.env
