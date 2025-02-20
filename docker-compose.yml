@@ -1,16 +1,28 @@
 services:
   pg:
     image: postgres
+    container_name: postgres_db
+    restart: always
     environment:
       POSTGRES_DB: app
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
+      PGDATA: /var/lib/postgresql/data
     ports:
       - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user -d app" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
   rabbitmq:
     image: rabbitmq:3-management-alpine
     hostname: rabbitmq
     container_name: rabbitmq
+    restart: always
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -20,5 +32,30 @@ services:
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
 
+  taskiq:
+    build: .
+    restart: always
+    depends_on:
+      - rabbitmq
+      - app
+    command: bash -c "cd app && taskiq worker core:broker --fs-discover --tasks-pattern "**/tasks" "
+
+  app:
+    build: .
+    container_name: coffee_app
+    restart: always
+    depends_on:
+      pg:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://user:password@pg:5432/app
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    env_file:
+      - app/.env
+    ports:
+      - "8000:8000"
+    command: bash -c "cd app && alembic upgrade head && python main.py"
+
 volumes:
+  pgdata:
   rabbitmq-data:
