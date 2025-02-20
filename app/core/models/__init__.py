@@ -10,6 +10,8 @@ __all__ = (
     "OrderItem",
     "OrderStatus",
     "StaticInfo",
+    "Chat",
+    "Message",
 )
 
 from .db_helper import db_helper
@@ -21,3 +23,5 @@ from .product import Product
 from .cart import Cart
 from .order import Order, OrderItem
 from .static_info import StaticInfo
+from .chat import Chat
+from .message import Message
