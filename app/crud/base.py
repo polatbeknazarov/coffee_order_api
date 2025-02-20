@@ -77,6 +77,27 @@ class BaseDAO[T: Base, V: pydantic.BaseModel]:
         return result.all()
 
     @classmethod
+    async def find_one(cls, where: Dict[str, Any], session: AsyncSession) -> T | None:
+        try:
+            filters = [getattr(cls.model, key) == value for key, value in where.items()]
+            stmt = select(cls.model).where(*filters).limit(1)
+            result = await session.scalars(stmt)
+            instance = result.first()
+
+            if instance is None:
+                log.warning("%s not found with filters %s", cls.model.__name__, where)
+
+            return instance
+        except SQLAlchemyError as e:
+            log.error(
+                "Error fetching one %s with filters %s: %s",
+                cls.model.__name__,
+                where,
+                e,
+            )
+            raise
+
+    @classmethod
     async def update(
         cls,
         model_id: int,
