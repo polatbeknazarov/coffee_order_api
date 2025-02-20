@@ -46,6 +46,7 @@ class OrderDAO(BaseDAO[Order, OrderBase]):
                 quantity=item.quantity,
             )
             session.add(order_item)
+            await CartDAO.delete(model_id=item.id, session=session)
 
         await session.commit()
 

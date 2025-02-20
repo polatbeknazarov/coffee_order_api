@@ -12,7 +12,7 @@ from core.schemas import (
     StaticInfoUpdate,
     UserRead,
 )
-from auth.dependencies import http_bearer, require_role
+from auth.dependencies import http_bearer, require_role, get_current_user
 from crud.static_info import StaticInfoDAO
 
 static_info_router = APIRouter(
@@ -44,7 +44,7 @@ async def create_static_info(
 
 @static_info_router.get("", response_model=List[StaticInfoRead])
 async def get_all_static_info(
-    admin: UserRead = Depends(require_role(UserRole.ADMIN)),
+    user: UserRead = Depends(get_current_user),
     session: AsyncSession = Depends(db_helper.session_getter),
 ):
     static_info = await StaticInfoDAO.get_all(session=session)

@@ -60,7 +60,7 @@ class AuthJWT(BaseModel):
 
 
 class TaskiqConfig(BaseModel):
-    url: AmqpDsn = "amqp://guest:guest@localhost:5672//"
+    url: AmqpDsn = "amqp://guest:guest@rabbitmq:5672//"
 
 
 class DatabaseConfig(BaseModel):
