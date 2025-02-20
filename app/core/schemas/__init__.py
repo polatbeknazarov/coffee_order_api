@@ -30,6 +30,12 @@ __all__ = (
     "StaticInfoCreate",
     "StaticInfoRead",
     "StaticInfoUpdate",
+    "ChatBase",
+    "ChatCreate",
+    "ChatRead",
+    "MessageBase",
+    "MessageRead",
+    "MessageCreate",
 )
 
 from .auth import LoginRequest, RegisterRequest, VerifyRequest, VerificationUserData
@@ -40,3 +46,5 @@ from .product import ProductBase, ProductCreate, ProductRead, ProductUpdate, Pro
 from .cart import CartBase, CartCreate, CartRead, CartUpdate
 from .order import OrderBase, OrderCreate, OrderRead, OrderUpdate
 from .static_info import StaticInfoBase, StaticInfoCreate, StaticInfoRead, StaticInfoUpdate
+from .chat import ChatBase, ChatRead, ChatCreate
+from .message import MessageBase, MessageRead, MessageCreate
