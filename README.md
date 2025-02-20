@@ -33,8 +33,8 @@ This is a backend API for a coffee shop network, developed using **FastAPI**. It
 ### Steps to Run Locally
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
-   cd <project-folder>
+   git clone https://github.com/polatbeknazarov/coffee_order_api.git
+   cd coffee_order_api
    ```
 2. Set up environment variables in `app/.env` (example `.env` file):
    ```env
