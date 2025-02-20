@@ -41,6 +41,8 @@ class APIV1Prefix(BaseModel):
     carts: str = "/carts"
     orders: str = "/orders"
     static_info: str = "/static-info"
+    chats: str = "/chats"
+    messages: str = "/messages"
 
 
 class APIPrefix(BaseModel):
